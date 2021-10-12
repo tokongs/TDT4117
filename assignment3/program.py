@@ -1,6 +1,7 @@
 import random
 import codecs
 import string 
+from nltk.probability import FreqDist
 from nltk.stem.porter import PorterStemmer
 import gensim
 import urllib
@@ -35,6 +36,9 @@ paragraphs = [p for p in paragraphs if p != "" and "Gutenberg" not in p]
 processed = [p.translate(str.maketrans("", "", string.punctuation + "\n\r\t")) for p in paragraphs]
 processed = [p.lower().split() for p in processed]
 processed = [[ stemmer.stem(w) for w in p ] for p in processed]
+
+fdist = FreqDist([word for paragraph in processed for word in paragraph])
+fdist = FreqDist(dict(fdist.most_common()[:15]))
 
 # Create dictionary
 dictionary = gensim.corpora.Dictionary(processed)
@@ -106,3 +110,5 @@ for doc in docs:
     print(f"[Paragraph {doc[0]}, Similarity {doc[1]}]")
     print(truncate_lines(paragraphs[doc[0]], 5))
     print("\n")
+
+fdist.plot(cumulative=False)
